@@ -1465,12 +1465,8 @@ public class ImsCall implements ICall {
 
         synchronized(mLockObj) {
             if (mSession != null) {
-                mSession.sendDtmf(c);
+                mSession.sendDtmf(c, result);
             }
-        }
-
-        if (result != null) {
-            result.sendToTarget();
         }
     }
 

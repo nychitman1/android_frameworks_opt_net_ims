@@ -17,6 +17,7 @@
 package com.android.ims.internal;
 
 import android.os.RemoteException;
+import android.os.Message;
 
 import com.android.ims.ImsCallProfile;
 import com.android.ims.ImsConferenceState;
@@ -865,6 +866,25 @@ public class ImsCallSession {
 
         try {
             miSession.sendDtmf(c, null);
+        } catch (RemoteException e) {
+        }
+    }
+
+   /**
+     * Sends a DTMF code. According to <a href="http://tools.ietf.org/html/rfc2833">RFC 2833</a>,
+     * event 0 ~ 9 maps to decimal value 0 ~ 9, '*' to 10, '#' to 11, event 'A' ~ 'D' to 12 ~ 15,
+     * and event flash to 16. Currently, event flash is not supported.
+     *
+     * @param c the DTMF to send. '0' ~ '9', 'A' ~ 'D', '*', '#' are valid inputs.
+     * @param result gives response result.
+     */
+    public void sendDtmf(char c,Message result) {
+        if (mClosed) {
+            return;
+        }
+
+        try {
+            miSession.sendDtmf(c, result);
         } catch (RemoteException e) {
         }
     }

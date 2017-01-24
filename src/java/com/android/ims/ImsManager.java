@@ -834,6 +834,11 @@ public class ImsManager {
         boolean isDataEnabled = isDataEnabled();
 
         boolean isFeatureOn = available && enabled && isNonTty && isDataEnabled;
+        if (getBooleanCarrierConfig(mContext,
+                "config_enable_vt_with_mobile_data_off")) {
+            isFeatureOn = available && enabled && isNonTty;
+            log("not check isDataEnabled when updateVideoCallFeatureValue");
+        }
 
         log("updateVideoCallFeatureValue: available = " + available
                 + ", enabled = " + enabled
@@ -1451,6 +1456,11 @@ public class ImsManager {
                 if (isVtEnabledByPlatform(mContext)) {
                     boolean enableViLte = turnOn && isVtEnabledByUser(mContext) &&
                             isDataEnabled();
+                    if (getBooleanCarrierConfig(mContext,
+                            "config_enable_vt_with_mobile_data_off")) {
+                        enableViLte = turnOn && isVtEnabledByUser(mContext);
+                        log("not check isDataEnabled when setLteFeatureValues");
+                    }
                     config.setFeatureValue(ImsConfig.FeatureConstants.FEATURE_TYPE_VIDEO_OVER_LTE,
                             TelephonyManager.NETWORK_TYPE_LTE,
                             enableViLte ? 1 : 0,

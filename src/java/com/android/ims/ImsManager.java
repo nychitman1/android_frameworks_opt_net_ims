@@ -543,6 +543,11 @@ public class ImsManager {
      */
     public static void setWfcMode(Context context, int wfcMode, boolean roaming) {
         if (!roaming) {
+            if(getBooleanCarrierConfig(context,
+                        CarrierConfigManager.KEY_CARRIER_WFC_ONLY_CELL_PREF_IN_HOME_NET_BOOL)) {
+                wfcMode = ImsConfig.WfcModeFeatureValueConstants.CELLULAR_PREFERRED;
+            }
+
             if (DBG) log("setWfcMode - setting=" + wfcMode);
             android.provider.Settings.Global.putInt(context.getContentResolver(),
                     android.provider.Settings.Global.WFC_IMS_MODE, wfcMode);
@@ -653,8 +658,9 @@ public class ImsManager {
     private static boolean isGbaValid(Context context) {
         if (getBooleanCarrierConfig(context,
                 CarrierConfigManager.KEY_CARRIER_IMS_GBA_REQUIRED_BOOL)) {
-            final TelephonyManager telephonyManager = TelephonyManager.getDefault();
-            String efIst = telephonyManager.getIsimIst();
+            TelephonyManager tm = (TelephonyManager)
+                context.getSystemService(Context.TELEPHONY_SERVICE);
+            String efIst = tm.getIsimIst();
             if (efIst == null) {
                 loge("ISF is NULL");
                 return true;
@@ -754,7 +760,9 @@ public class ImsManager {
      */
     public static void updateImsServiceConfig(Context context, int phoneId, boolean force) {
         if (!force) {
-            if (TelephonyManager.getDefault().getSimState() != TelephonyManager.SIM_STATE_READY) {
+            TelephonyManager tm = (TelephonyManager)
+                context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm.getSimState() != TelephonyManager.SIM_STATE_READY) {
                 log("updateImsServiceConfig: SIM not ready");
                 // Don't disable IMS if SIM is not ready
                 return;
@@ -862,7 +870,9 @@ public class ImsManager {
      * @throws ImsException
      */
     private boolean updateWfcFeatureAndProvisionedValues() throws ImsException {
-        boolean isNetworkRoaming = TelephonyManager.getDefault().isNetworkRoaming();
+        TelephonyManager tm = (TelephonyManager)
+                mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        boolean isNetworkRoaming = tm.isNetworkRoaming();
         boolean available = isWfcEnabledByPlatform(mContext);
         boolean enabled = isWfcEnabledByUser(mContext);
         displayWfcMode(mContext, true);
@@ -886,8 +896,10 @@ public class ImsManager {
         if (!isFeatureOn) {
             mode = ImsConfig.WfcModeFeatureValueConstants.CELLULAR_PREFERRED;
             roaming = false;
+            setWfcModeInternal(mContext, mode);
+        } else {
+            setWfcMode(mContext, mode, isNetworkRoaming);
         }
-        setWfcModeInternal(mContext, mode);
         setWfcRoamingSettingInternal(mContext, roaming);
 
         return isFeatureOn;

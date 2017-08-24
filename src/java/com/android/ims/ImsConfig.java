@@ -512,7 +512,8 @@ public class ImsConfig {
      */
     public static class VideoQualityFeatureValuesConstants {
         public static final int LOW = 0;
-        public static final int HIGH = 1;
+        public static final int MEDIUM = 1;
+        public static final int HIGH = 2;
     }
 
    /**
